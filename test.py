@@ -7,17 +7,16 @@ str_to_test = "ତୁମର କୋଡ୍ ରିଫାକ୍ଟର୍ କରି�
 app = Quart(__name__)
 
 
-async def single_inference(app, text, index):
-    m = Model(app)
+async def single_inference(text, index):
+    m = Model(app.client)  # Assuming the Model class requires a client argument
     resp = await m.inference(ModelRequest(text=text))
     print(f"{index}: {resp}")
 
-
-async def bench_text_lang_detection(app):
+async def bench_text_lang_detection():
     tasks = []
-
+    
     for i in range(len(str_to_test)):
-        task = single_inference(app, str_to_test[0:i], i)
+        task = asyncio.create_task(single_inference(str_to_test[0:i], i))
         tasks.append(task)
 
     await asyncio.gather(*tasks)
